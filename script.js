@@ -4,8 +4,12 @@ document.addEventListener('DOMContentLoaded', function() {
     initIncomeTaxCharts();
     initExpenseCharts();
     initEMICharts();
+    setupChatbot();
     initStockCharts();
     initTripCharts();
+    const tryButtons = document.querySelectorAll('#tryNowBtn, #heroTryBtn, #ctaTryBtn');
+    const landingPage = document.getElementById('landingPage');
+    const dashboardContainer = document.getElementById('dashboardContainer');
     
     // Navigation functionality
     setupNavigation();
@@ -19,6 +23,33 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add RGB animation to logo
     const logo = document.getElementById('wealthPilotLogo');
     logo.classList.add('rgb-border');
+});
+
+tryButtons.forEach(button => {
+    button.addEventListener('click', function(e) {
+        e.preventDefault();
+        // Hide landing page
+        landingPage.style.display = 'none';
+        // Show dashboard
+        dashboardContainer.style.display = 'grid';
+        // Scroll to top
+        window.scrollTo(0, 0);
+    });
+});
+
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        if (this.getAttribute('href') !== '#') {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        }
+    });
 });
 
 function setupNavigation() {
@@ -364,6 +395,42 @@ function initEMICharts() {
         }
     });
 }
+function setupChatbot() {
+    const sendButton = document.getElementById('sendChatbotMessage');
+    const inputField = document.getElementById('chatbotQuery');
+    const messagesContainer = document.querySelector('.chatbot-messages');
+    const suggestions = document.querySelectorAll('.chatbot-suggestions .suggestion');
+    
+    // Handle sending messages
+    sendButton.addEventListener('click', sendChatbotMessage);
+    inputField.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            sendChatbotMessage();
+        }
+    });
+    
+    // Handle suggestion clicks
+    suggestions.forEach(suggestion => {
+        suggestion.addEventListener('click', function() {
+            inputField.value = this.textContent;
+            sendChatbotMessage();
+        });
+    });
+    
+    function sendChatbotMessage() {
+        const query = inputField.value.trim();
+        if (query) {
+            // Add user message
+            addMessage(query, 'sent');
+            inputField.value = '';
+            
+            // Simulate API call (in a real app, you'd call your backend)
+            setTimeout(() => {
+                const response = generateChatbotResponse(query);
+                addMessage(response, 'received');
+            }, 1000);
+        }
+    }
 
 function initStockCharts() {
     // Portfolio Allocation Chart
@@ -451,6 +518,47 @@ function initStockCharts() {
             }
         }
     });
+    
+    function addMessage(content, type) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `chatbot-message ${type}`;
+        messageDiv.innerHTML = `
+            <div class="message-content">${content}</div>
+            <div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+        `;
+        messagesContainer.appendChild(messageDiv);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
+    function generateChatbotResponse(query) {
+        // Simple response logic - in a real app, you'd use a proper NLP service
+        query = query.toLowerCase();
+        
+        if (query.includes('reliance')) {
+            return "Reliance Industries Ltd (RELIANCE) is currently trading at ₹2456.75 (+1.34%). " +
+                   "It's a conglomerate with businesses in energy, petrochemicals, textiles, retail, and telecommunications. " +
+                   "Current P/E ratio is 24.15 and market cap is ₹15.2 trillion.";
+        } 
+        else if (query.includes('nifty') || query.includes('prediction')) {
+            return "The Nifty 50 index is currently showing bullish trends with support at 17,500 and resistance at 18,200. " +
+                   "Analysts predict a 3-5% upside in the next quarter based on current market conditions.";
+        }
+        else if (query.includes('sector') || query.includes('performing')) {
+            return "Currently, the best performing sectors in the Indian market are:<br>" +
+                   "1. IT Services (+2.3% this month)<br>" +
+                   "2. Banking (+1.8% this month)<br>" +
+                   "3. Healthcare (+1.5% this month)<br>" +
+                   "4. Automobiles (+1.2% this month)";
+        }
+        else if (query.includes('hello') || query.includes('hi')) {
+            return "Hello! I can help you with information about Indian stocks, market trends, and investment advice. What would you like to know?";
+        }
+        else {
+            return "I can provide information about Indian stocks, market trends, and investment advice. " +
+                   "Try asking about specific stocks like RELIANCE or TCS, or ask for market predictions.";
+        }
+    }
+}
     
     // Stock Detail Chart
     const stockDetailCtx = document.getElementById('stockDetailChart').getContext('2d');

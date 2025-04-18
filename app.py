@@ -33,11 +33,11 @@ user_data = {
         }
     },
     "watchlist": [
-        {"symbol": "AAPL", "price": 175.43, "change": 2.34, "change_percent": 1.35, "volume": "45.6M"},
-        {"symbol": "MSFT", "price": 328.39, "change": 1.87, "change_percent": 0.57, "volume": "23.1M"},
-        {"symbol": "GOOGL", "price": 123.45, "change": -0.67, "change_percent": -0.54, "volume": "18.9M"},
-        {"symbol": "AMZN", "price": 125.67, "change": 3.21, "change_percent": 2.62, "volume": "32.4M"},
-        {"symbol": "TSLA", "price": 256.78, "change": -5.43, "change_percent": -2.07, "volume": "78.3M"}
+        {"symbol": "RELIANCE", "price": 2456.75, "change": 32.50, "change_percent": 1.34, "volume": "2.5M"},
+        {"symbol": "TCS", "price": 3315.20, "change": -45.30, "change_percent": -1.35, "volume": "1.2M"},
+        {"symbol": "HDFCBANK", "price": 1425.60, "change": 12.75, "change_percent": 0.90, "volume": "3.1M"},
+        {"symbol": "INFY", "price": 1498.30, "change": 25.40, "change_percent": 1.72, "volume": "1.8M"},
+        {"symbol": "BHARTIARTL", "price": 785.45, "change": -8.20, "change_percent": -1.03, "volume": "1.5M"}
     ],
     "trips": [
         {
@@ -92,33 +92,81 @@ def get_watchlist():
 
 @app.route('/api/stock/<symbol>', methods=['GET'])
 def get_stock(symbol):
-    # In a real app, fetch this from a financial API
-    sample_data = {
-        "AAPL": {
-            "name": "Apple Inc.",
-            "price": 175.43,
-            "change": 2.34,
-            "change_percent": 1.35,
-            "market_cap": "2.75T",
-            "pe_ratio": 28.76,
-            "dividend_yield": 0.55,
-            "week52_high": 198.23,
-            "week52_low": 124.17,
-            "beta": 1.28,
-            "eps": 6.10,
-            "revenue": "394.33B",
-            "description": "Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide.",
+    # Sample data for Indian stocks
+    indian_stocks = {
+        "RELIANCE": {
+            "name": "Reliance Industries Ltd",
+            "price": 2456.75,
+            "change": 32.50,
+            "change_percent": 1.34,
+            "market_cap": "15.2T",
+            "pe_ratio": 24.15,
+            "dividend_yield": 0.45,
+            "week52_high": 2580.00,
+            "week52_low": 2105.50,
+            "beta": 1.15,
+            "eps": 101.75,
+            "revenue": "7.5T",
+            "description": "Reliance Industries Limited is an Indian multinational conglomerate company headquartered in Mumbai.",
             "chart_data": {
                 "labels": ["9:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "1:00", "1:30", "2:00", "2:30", "3:00", "3:30", "4:00"],
-                "prices": [172.50, 173.20, 173.80, 174.50, 174.20, 174.80, 175.20, 175.50, 175.30, 175.60, 175.40, 175.30, 175.45, 175.43]
+                "prices": [2420.50, 2432.20, 2438.80, 2445.50, 2442.20, 2448.80, 2452.20, 2455.50, 2453.30, 2456.60, 2455.40, 2453.30, 2455.45, 2456.75]
+            }
+        },
+        "TCS": {
+            "name": "Tata Consultancy Services Ltd",
+            "price": 3315.20,
+            "change": -45.30,
+            "change_percent": -1.35,
+            "market_cap": "12.1T",
+            "pe_ratio": 30.25,
+            "dividend_yield": 1.25,
+            "week52_high": 3450.00,
+            "week52_low": 2950.50,
+            "beta": 0.85,
+            "eps": 109.60,
+            "revenue": "1.9T",
+            "description": "Tata Consultancy Services is an Indian multinational information technology services and consulting company.",
+            "chart_data": {
+                "labels": ["9:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "1:00", "1:30", "2:00", "2:30", "3:00", "3:30", "4:00"],
+                "prices": [3350.50, 3342.20, 3338.80, 3335.50, 3332.20, 3328.80, 3325.20, 3320.50, 3318.30, 3316.60, 3315.40, 3315.30, 3315.25, 3315.20]
             }
         }
     }
     
-    if symbol in sample_data:
-        return jsonify(sample_data[symbol])
+    if symbol in indian_stocks:
+        return jsonify(indian_stocks[symbol])
     else:
         return jsonify({"error": "Stock not found"}), 404
+    
+@app.route('/api/indian-market-news', methods=['GET'])
+def get_indian_market_news():
+    return jsonify([
+        {
+            "source": "Economic Times",
+            "time": "2 hours ago",
+            "title": "Nifty crosses 18,000 mark as IT stocks rally",
+            "summary": "The Nifty 50 index crossed the 18,000 mark for the first time in a month as IT stocks gained on positive global cues."
+        },
+        {
+            "source": "Business Standard",
+            "time": "4 hours ago",
+            "title": "RBI keeps repo rate unchanged at 6.5%",
+            "summary": "The Reserve Bank of India maintained the status quo on key policy rates, signaling a balanced approach to inflation control and growth."
+        },
+        {
+            "source": "Moneycontrol",
+            "time": "6 hours ago",
+            "title": "Reliance Jio reports 12% revenue growth in Q1",
+            "summary": "Reliance Jio Infocomm reported a 12% year-on-year increase in revenue for the first quarter, beating analyst estimates."
+        },
+        {
+            "source": "Livemint",
+            "time": "8 hours ago",
+            "title": "FPIs invest ₹12,500 crore in Indian equities in June",
+            "summary": "Foreign portfolio investors turned net buyers in June after two months of outflows, injecting ₹12,500 crore into Indian equities."
+        }
+    ])
 
 @app.route('/api/trips', methods=['GET', 'POST'])
 def handle_trips():

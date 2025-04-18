@@ -763,78 +763,31 @@
                         </div>
                     </div>
 
-                    <div class="card stock-details-card">
+                    <div class="card stock-chatbot-card">
                         <div class="card-header">
-                            <h3>AAPL - Apple Inc.</h3>
+                            <h3>Stock Market Assistant</h3>
                             <div class="card-actions">
-                                <i class="fas fa-star"></i>
+                                <i class="fas fa-robot"></i>
                             </div>
                         </div>
                         <div class="card-body">
-                            <div class="stock-header">
-                                <div class="stock-price">
-                                    <div class="price">$175.43</div>
-                                    <div class="change positive">+2.34 (+1.35%)</div>
-                                </div>
-                                <div class="stock-meta">
-                                    <div class="meta-item">
-                                        <span class="meta-label">Market Cap</span>
-                                        <span class="meta-value">$2.75T</span>
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="meta-label">PE Ratio</span>
-                                        <span class="meta-value">28.76</span>
-                                    </div>
-                                    <div class="meta-item">
-                                        <span class="meta-label">Dividend Yield</span>
-                                        <span class="meta-value">0.55%</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="stock-chart-container">
-                                <canvas id="stockDetailChart"></canvas>
-                            </div>
-                            <div class="stock-info-tabs">
-                                <div class="tabs-header">
-                                    <div class="tab active" data-tab="overview">Overview</div>
-                                    <div class="tab" data-tab="financials">Financials</div>
-                                    <div class="tab" data-tab="news">News</div>
-                                    <div class="tab" data-tab="analysis">Analysis</div>
-                                </div>
-                                <div class="tabs-content">
-                                    <div class="tab-content active" id="overview">
-                                        <p>Apple Inc. designs, manufactures, and markets smartphones, personal computers, tablets, wearables, and accessories worldwide. The company offers iPhone, a line of smartphones; Mac, a line of personal computers; iPad, a line of multi-purpose tablets; and wearables, home, and accessories comprising AirPods, Apple TV, Apple Watch, Beats products, and HomePod.</p>
-                                        <div class="key-metrics">
-                                            <h5>Key Metrics</h5>
-                                            <div class="metrics-grid">
-                                                <div class="metric-item">
-                                                    <span class="metric-label">52 Week Range</span>
-                                                    <span class="metric-value">$124.17 - $198.23</span>
-                                                </div>
-                                                <div class="metric-item">
-                                                    <span class="metric-label">Beta</span>
-                                                    <span class="metric-value">1.28</span>
-                                                </div>
-                                                <div class="metric-item">
-                                                    <span class="metric-label">EPS</span>
-                                                    <span class="metric-value">$6.10</span>
-                                                </div>
-                                                <div class="metric-item">
-                                                    <span class="metric-label">Revenue</span>
-                                                    <span class="metric-value">$394.33B</span>
-                                                </div>
-                                            </div>
+                            <div class="chatbot-container">
+                                <div class="chatbot-messages">
+                                    <div class="chatbot-message received">
+                                        <div class="message-content">
+                                            Hello! I'm your Indian stock market assistant. How can I help you today?
                                         </div>
+                                        <div class="message-time">Just now</div>
                                     </div>
-                                    <div class="tab-content" id="financials">
-                                        <p>Financial data would be displayed here.</p>
-                                    </div>
-                                    <div class="tab-content" id="news">
-                                        <p>News articles would be displayed here.</p>
-                                    </div>
-                                    <div class="tab-content" id="analysis">
-                                        <p>Analyst ratings and predictions would be displayed here.</p>
-                                    </div>
+                                </div>
+                                <div class="chatbot-input">
+                                    <input type="text" id="chatbotQuery" placeholder="Ask about Indian stocks...">
+                                    <button id="sendChatbotMessage" class="btn-send"><i class="fas fa-paper-plane"></i></button>
+                                </div>
+                                <div class="chatbot-suggestions">
+                                    <div class="suggestion">Tell me about RELIANCE</div>
+                                    <div class="suggestion">Nifty 50 prediction</div>
+                                    <div class="suggestion">Best performing sectors</div>
                                 </div>
                             </div>
                         </div>
