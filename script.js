@@ -502,13 +502,130 @@ function initTripCharts() {
     // Trip Expenses Chart
     const tripExpensesCtx = document.getElementById('tripExpensesChart').getContext('2d');
     const tripExpensesChart = new Chart(tripExpensesCtx, {
-        type: 'bar',
+        type: 'doughnut',
         data: {
             labels: ['Flights', 'Accommodation', 'Food', 'Transport', 'Activities', 'Shopping'],
             datasets: [{
-                label: 'Expenses',
-                data: [1200, 800, 500, 300, 250, 200],
-                backgroundColor: 'rgba(0, 255, 170, 0.7)',
+                data: [1200, 800, 600, 300, 200, 150],
+                backgroundColor: [
+                    '#4e79a7',
+                    '#f28e2b',
+                    '#59a14f',
+                    '#e15759',
+                    '#edc948',
+                    '#76b7b2'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+}
+
+function calculateTaxes() {
+    // Get form values
+    const grossSalary = parseFloat(document.getElementById('grossSalary').value) || 0;
+    const state = document.getElementById('state').value;
+    const filingStatus = document.getElementById('filingStatus').value;
+    const payFrequency = document.getElementById('payFrequency').value;
+    
+    // Simple tax calculation (simplified for demo)
+    let federalTax = 0;
+    let stateTax = 0;
+    
+    if (grossSalary <= 9950) {
+        federalTax = grossSalary * 0.10;
+    } else if (grossSalary <= 40525) {
+        federalTax = 995 + (grossSalary - 9950) * 0.12;
+    } else if (grossSalary <= 86375) {
+        federalTax = 4664 + (grossSalary - 40525) * 0.22;
+    } else if (grossSalary <= 164925) {
+        federalTax = 14751 + (grossSalary - 86375) * 0.24;
+    } else if (grossSalary <= 209425) {
+        federalTax = 33603 + (grossSalary - 164925) * 0.32;
+    } else if (grossSalary <= 523600) {
+        federalTax = 47843 + (grossSalary - 209425) * 0.35;
+    } else {
+        federalTax = 157804 + (grossSalary - 523600) * 0.37;
+    }
+    
+    // State tax (simplified)
+    switch(state) {
+        case 'CA':
+            stateTax = grossSalary * 0.06;
+            break;
+        case 'NY':
+            stateTax = grossSalary * 0.065;
+            break;
+        case 'TX':
+            stateTax = 0; // Texas has no state income tax
+            break;
+        case 'FL':
+            stateTax = 0; // Florida has no state income tax
+            break;
+        default:
+            stateTax = grossSalary * 0.05;
+    }
+    
+    // Social Security and Medicare
+    const socialSecurity = grossSalary * 0.062;
+    const medicare = grossSalary * 0.0145;
+    
+    // Total taxes
+    const totalTaxes = federalTax + stateTax + socialSecurity + medicare;
+    const netAnnualIncome = grossSalary - totalTaxes;
+    
+    // Calculate monthly take-home
+    let monthlyTakeHome = netAnnualIncome / 12;
+    if (payFrequency === 'biweekly') {
+        monthlyTakeHome = netAnnualIncome / 26 * 2;
+    } else if (payFrequency === 'weekly') {
+        monthlyTakeHome = netAnnualIncome / 52 * 4;
+    }
+    
+    // Update the UI
+    document.querySelector('.tax-summary-item:nth-child(1) .tax-value').textContent = '$' + grossSalary.toLocaleString('en-US', {maximumFractionDigits: 2});
+    document.querySelector('.tax-summary-item:nth-child(2) .tax-value').textContent = '-$' + federalTax.toLocaleString('en-US', {maximumFractionDigits: 2});
+    document.querySelector('.tax-summary-item:nth-child(3) .tax-value').textContent = '-$' + stateTax.toLocaleString('en-US', {maximumFractionDigits: 2});
+    document.querySelector('.tax-summary-item:nth-child(4) .tax-value').textContent = '-$' + socialSecurity.toLocaleString('en-US', {maximumFractionDigits: 2});
+    document.querySelector('.tax-summary-item:nth-child(5) .tax-value').textContent = '-$' + medicare.toLocaleString('en-US', {maximumFractionDigits: 2});
+    document.querySelector('.tax-summary-item.total .tax-value').textContent = '$' + netAnnualIncome.toLocaleString('en-US', {maximumFractionDigits: 2});
+    document.querySelector('.tax-summary-item.monthly .tax-value').textContent = '$' + monthlyTakeHome.toLocaleString('en-US', {maximumFractionDigits: 2});
+    
+    // Update the chart
+    updateTaxBreakdownChart(federalTax, stateTax, socialSecurity, medicare);
+}
+
+function updateTaxBreakdownChart(federal, state, socialSecurity, medicare) {
+    const taxBreakdownCtx = document.getElementById('taxBreakdownChart').getContext('2d');
+    
+    // Destroy the old chart if it exists
+    if (window.taxBreakdownChart) {
+        window.taxBreakdownChart.destroy();
+    }
+    
+    // Create new chart
+    window.taxBreakdownChart = new Chart(taxBreakdownCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Federal', 'State', 'Social Security', 'Medicare'],
+            datasets: [{
+                label: 'Tax Amount',
+                data: [federal, state, socialSecurity, medicare],
+                backgroundColor: [
+                    'rgba(0, 255, 170, 0.7)',
+                    'rgba(255, 0, 170, 0.7)',
+                    'rgba(0, 170, 255, 0.7)',
+                    'rgba(170, 0, 255, 0.7)'
+                ],
                 borderWidth: 0
             }]
         },
@@ -528,7 +645,7 @@ function initTripCharts() {
                     },
                     ticks: {
                         callback: function(value) {
-                            return '$' + value;
+                            return '$' + value.toLocaleString();
                         }
                     }
                 },
@@ -542,225 +659,325 @@ function initTripCharts() {
     });
 }
 
-function calculateTaxes() {
-    const grossSalary = parseFloat(document.getElementById('grossSalary').value);
-    const state = document.getElementById('state').value;
-    const filingStatus = document.getElementById('filingStatus').value;
-    const payFrequency = document.getElementById('payFrequency').value;
-    
-    // Simplified tax calculation (in a real app, this would be more complex)
-    let federalTax = grossSalary * 0.15;
-    let stateTax = grossSalary * 0.06;
-    let socialSecurity = grossSalary * 0.062;
-    let medicare = grossSalary * 0.0145;
-    
-    // Adjust based on filing status
-    if (filingStatus === 'married_joint') {
-        federalTax = grossSalary * 0.12;
-    } else if (filingStatus === 'head') {
-        federalTax = grossSalary * 0.13;
-    }
-    
-    // Adjust state tax based on selected state
-    if (state === 'CA') {
-        stateTax = grossSalary * 0.07;
-    } else if (state === 'TX') {
-        stateTax = 0; // Texas has no state income tax
-    }
-    
-    const totalTax = federalTax + stateTax + socialSecurity + medicare;
-    const netAnnualIncome = grossSalary - totalTax;
-    
-    // Calculate monthly take-home based on pay frequency
-    let monthlyTakeHome;
-    if (payFrequency === 'monthly') {
-        monthlyTakeHome = netAnnualIncome / 12;
-    } else if (payFrequency === 'biweekly') {
-        monthlyTakeHome = (netAnnualIncome / 26) * 2;
-    } else if (payFrequency === 'weekly') {
-        monthlyTakeHome = (netAnnualIncome / 52) * 4;
-    } else {
-        monthlyTakeHome = netAnnualIncome / 12;
-    }
-    
-    // Update the UI
-    document.querySelector('.tax-summary-item:nth-child(1) .tax-value').textContent = '$' + grossSalary.toLocaleString('en-US', {maximumFractionDigits: 2});
-    document.querySelector('.tax-summary-item:nth-child(2) .tax-value').textContent = '-$' + federalTax.toLocaleString('en-US', {maximumFractionDigits: 2});
-    document.querySelector('.tax-summary-item:nth-child(3) .tax-value').textContent = '-$' + stateTax.toLocaleString('en-US', {maximumFractionDigits: 2});
-    document.querySelector('.tax-summary-item:nth-child(4) .tax-value').textContent = '-$' + socialSecurity.toLocaleString('en-US', {maximumFractionDigits: 2});
-    document.querySelector('.tax-summary-item:nth-child(5) .tax-value').textContent = '-$' + medicare.toLocaleString('en-US', {maximumFractionDigits: 2});
-    document.querySelector('.tax-summary-item:nth-child(6) .tax-value').textContent = '$' + netAnnualIncome.toLocaleString('en-US', {maximumFractionDigits: 2});
-    document.querySelector('.tax-summary-item:nth-child(7) .tax-value').textContent = '$' + monthlyTakeHome.toLocaleString('en-US', {maximumFractionDigits: 2});
-    
-    // Update the chart data
-    const taxBreakdownChart = Chart.getChart('taxBreakdownChart');
-    taxBreakdownChart.data.datasets[0].data = [federalTax, stateTax, socialSecurity, medicare];
-    taxBreakdownChart.update();
-}
-
 function calculateBudget() {
-    const monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value);
-    const savingsGoal = parseFloat(document.getElementById('savingsGoal').value);
-    const rent = parseFloat(document.getElementById('rent').value);
-    const utilities = parseFloat(document.getElementById('utilities').value);
-    const groceries = parseFloat(document.getElementById('groceries').value);
-    const transportation = parseFloat(document.getElementById('transportation').value);
-    const entertainment = parseFloat(document.getElementById('entertainment').value);
-    const other = parseFloat(document.getElementById('other').value);
+    // Get form values
+    const monthlyIncome = parseFloat(document.getElementById('monthlyIncome').value) || 0;
+    const savingsGoal = parseFloat(document.getElementById('savingsGoal').value) || 0;
+    const rent = parseFloat(document.getElementById('rent').value) || 0;
+    const utilities = parseFloat(document.getElementById('utilities').value) || 0;
+    const groceries = parseFloat(document.getElementById('groceries').value) || 0;
+    const transportation = parseFloat(document.getElementById('transportation').value) || 0;
+    const entertainment = parseFloat(document.getElementById('entertainment').value) || 0;
+    const other = parseFloat(document.getElementById('other').value) || 0;
     
+    // Calculate savings amount
     const savingsAmount = monthlyIncome * (savingsGoal / 100);
+    
+    // Calculate total expenses
     const totalExpenses = rent + utilities + groceries + transportation + entertainment + other;
+    
+    // Calculate remaining balance
     const remainingBalance = monthlyIncome - totalExpenses - savingsAmount;
     
     // Update the UI
     document.querySelector('.budget-summary-item:nth-child(1) .budget-value').textContent = '$' + monthlyIncome.toLocaleString('en-US', {maximumFractionDigits: 2});
     document.querySelector('.budget-summary-item:nth-child(2) .budget-value').textContent = '-$' + totalExpenses.toLocaleString('en-US', {maximumFractionDigits: 2});
     document.querySelector('.budget-summary-item:nth-child(3) .budget-value').textContent = '$' + savingsAmount.toLocaleString('en-US', {maximumFractionDigits: 2});
-    document.querySelector('.budget-summary-item:nth-child(4) .budget-value').textContent = '$' + remainingBalance.toLocaleString('en-US', {maximumFractionDigits: 2});
+    document.querySelector('.budget-summary-item.total .budget-value').textContent = '$' + remainingBalance.toLocaleString('en-US', {maximumFractionDigits: 2});
     
-    // Update the chart data
-    const budgetChart = Chart.getChart('budgetChart');
-    budgetChart.data.datasets[0].data = [rent, utilities, groceries, transportation, entertainment, other, savingsAmount];
-    budgetChart.update();
+    // Update the chart
+    updateBudgetChart(rent, utilities, groceries, transportation, entertainment, other, savingsAmount);
+    
+    // Generate recommendations
+    generateBudgetRecommendations(monthlyIncome, rent, savingsAmount, remainingBalance);
+}
+
+function updateBudgetChart(rent, utilities, groceries, transportation, entertainment, other, savings) {
+    const budgetCtx = document.getElementById('budgetChart').getContext('2d');
+    
+    // Destroy the old chart if it exists
+    if (window.budgetChart) {
+        window.budgetChart.destroy();
+    }
+    
+    // Create new chart
+    window.budgetChart = new Chart(budgetCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Housing', 'Utilities', 'Groceries', 'Transportation', 'Entertainment', 'Other', 'Savings'],
+            datasets: [{
+                data: [rent, utilities, groceries, transportation, entertainment, other, savings],
+                backgroundColor: [
+                    '#4e79a7',
+                    '#f28e2b',
+                    '#59a14f',
+                    '#e15759',
+                    '#edc948',
+                    '#76b7b2',
+                    '#b07aa1'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
+        }
+    });
+}
+
+function generateBudgetRecommendations(income, rent, savings, remaining) {
+    const recommendations = [];
+    
+    // Check housing cost
+    const housingPercentage = (rent / income) * 100;
+    if (housingPercentage > 30) {
+        recommendations.push(`Your housing costs are ${housingPercentage.toFixed(1)}% of income (recommended: ≤30%).`);
+    }
+    
+    // Check savings rate
+    const savingsRate = (savings / income) * 100;
+    if (savingsRate < 20) {
+        recommendations.push(`Your savings rate is ${savingsRate.toFixed(1)}% (recommended: ≥20%).`);
+    } else {
+        recommendations.push(`You're meeting your savings goal! Consider increasing to ${(savingsRate + 5).toFixed(1)}%.`);
+    }
+    
+    // Check remaining balance
+    if (remaining > 0) {
+        const investPercentage = Math.min(50, (remaining / income) * 100);
+        recommendations.push(`You have $${remaining.toFixed(2)} remaining - consider investing ${investPercentage.toFixed(1)}% of this.`);
+    } else if (remaining < 0) {
+        recommendations.push(`You're overspending by $${Math.abs(remaining).toFixed(2)}. Look for areas to cut back.`);
+    }
+    
+    // Update the recommendations list
+    const recommendationsList = document.querySelector('.budget-recommendations ul');
+    recommendationsList.innerHTML = '';
+    
+    recommendations.forEach(rec => {
+        const li = document.createElement('li');
+        li.textContent = rec;
+        recommendationsList.appendChild(li);
+    });
 }
 
 function calculateEMI() {
-    const loanAmount = parseFloat(document.getElementById('loanAmount').value);
-    const interestRate = parseFloat(document.getElementById('interestRate').value);
-    const loanTerm = parseInt(document.getElementById('loanTerm').value);
+    // Get form values
+    const loanAmount = parseFloat(document.getElementById('loanAmount').value) || 0;
+    const interestRate = parseFloat(document.getElementById('interestRate').value) || 0;
+    const loanTerm = parseFloat(document.getElementById('loanTerm').value) || 0;
     const startDate = document.getElementById('startDate').value;
     
-    // Calculate EMI
+    // Calculate monthly interest rate
     const monthlyRate = interestRate / 100 / 12;
-    const numberOfPayments = loanTerm * 12;
-    const emi = loanAmount * monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments) / (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
     
-    const totalPayment = emi * numberOfPayments;
-    const totalInterest = totalPayment - loanAmount;
+    // Calculate number of payments
+    const numPayments = loanTerm * 12;
+    
+    // Calculate EMI
+    const emi = loanAmount * monthlyRate * Math.pow(1 + monthlyRate, numPayments) / (Math.pow(1 + monthlyRate, numPayments) - 1);
+    
+    // Calculate total interest
+    const totalInterest = (emi * numPayments) - loanAmount;
+    
+    // Calculate total payment
+    const totalPayment = emi * numPayments;
     
     // Calculate payoff date
     const startDateObj = new Date(startDate);
-    const payoffDate = new Date(startDateObj);
-    payoffDate.setFullYear(startDateObj.getFullYear() + loanTerm);
+    startDateObj.setMonth(startDateObj.getMonth() + numPayments);
+    const payoffDate = startDateObj.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     
     // Update the UI
     document.querySelector('.emi-summary-item:nth-child(1) .emi-value').textContent = '$' + emi.toLocaleString('en-US', {maximumFractionDigits: 2});
     document.querySelector('.emi-summary-item:nth-child(2) .emi-value').textContent = '$' + totalInterest.toLocaleString('en-US', {maximumFractionDigits: 2});
     document.querySelector('.emi-summary-item:nth-child(3) .emi-value').textContent = '$' + totalPayment.toLocaleString('en-US', {maximumFractionDigits: 2});
-    document.querySelector('.emi-summary-item:nth-child(4) .emi-value').textContent = payoffDate.toLocaleString('default', {month: 'long', year: 'numeric'});
+    document.querySelector('.emi-summary-item:nth-child(4) .emi-value').textContent = payoffDate;
     
-    // Update the chart data
-    const emiBreakdownChart = Chart.getChart('emiBreakdownChart');
-    emiBreakdownChart.data.datasets[0].data = [loanAmount, totalInterest];
-    emiBreakdownChart.update();
+    // Update the chart
+    updateEMIBreakdownChart(loanAmount, totalInterest);
 }
 
 function calculateEMIExtra() {
-    const extraPayment = parseFloat(document.getElementById('extraPayment').value);
-    const loanAmount = parseFloat(document.getElementById('loanAmount').value);
-    const interestRate = parseFloat(document.getElementById('interestRate').value);
-    const loanTerm = parseInt(document.getElementById('loanTerm').value);
+    const extraPayment = parseFloat(document.getElementById('extraPayment').value) || 0;
+    const emi = parseFloat(document.querySelector('.emi-summary-item:nth-child(1) .emi-value').textContent.replace(/[^0-9.-]+/g,"")) || 0;
+    const loanAmount = parseFloat(document.getElementById('loanAmount').value) || 0;
+    const interestRate = parseFloat(document.getElementById('interestRate').value) || 0;
+    const loanTerm = parseFloat(document.getElementById('loanTerm').value) || 0;
     
-    // Simplified calculation for extra payments
+    // Calculate monthly interest rate
     const monthlyRate = interestRate / 100 / 12;
-    const originalEmi = loanAmount * monthlyRate * Math.pow(1 + monthlyRate, loanTerm * 12) / (Math.pow(1 + monthlyRate, loanTerm * 12) - 1);
-    const newEmi = originalEmi + extraPayment;
     
-    // Estimate savings (this would be more complex in reality)
-    const interestSaved = loanAmount * (interestRate / 100) * (loanTerm / 2) * 0.7;
-    const yearsSaved = loanTerm * 0.3;
+    // Calculate new EMI with extra payment
+    const newEmi = emi + extraPayment;
     
-    // Update the UI
-    document.querySelector('.extra-payment-results p').textContent = 
-        `Paying an extra $${extraPayment.toFixed(2)}/month would save you $${interestSaved.toLocaleString('en-US', {maximumFractionDigits: 2}) in interest and pay off your loan ${yearsSaved.toFixed(1)} years earlier.`;
-}
-
-function createTrip() {
-    const tripName = document.getElementById('tripName').value;
-    const tripStartDate = document.getElementById('tripStartDate').value;
-    const tripEndDate = document.getElementById('tripEndDate').value;
-    const tripBudget = parseFloat(document.getElementById('tripBudget').value);
+    // Calculate new payoff period
+    let balance = loanAmount;
+    let months = 0;
+    let totalInterest = 0;
     
-    // In a real app, you would save this to a database
-    alert(`Trip "${tripName}" created successfully!`);
-    
-    // Reset the form
-    document.getElementById('tripForm').reset();
-    document.querySelector('.trip-members-list').innerHTML = '';
-}
-
-function addTripMember() {
-    const memberName = document.getElementById('memberName').value;
-    const memberEmail = document.getElementById('memberEmail').value;
-    const memberPhone = document.getElementById('memberPhone').value;
-    
-    if (!memberName || !memberEmail || !memberPhone) {
-        alert('Please fill in all member details');
-        return;
+    while (balance > 0) {
+        const interest = balance * monthlyRate;
+        totalInterest += interest;
+        const principal = newEmi - interest;
+        balance -= principal;
+        months++;
+        
+        if (months > 1000) break; // Safety net
     }
     
-    const memberItem = document.createElement('div');
-    memberItem.className = 'member-item';
-    memberItem.innerHTML = `
-        <div class="member-info">
-            <span class="member-name">${memberName}</span>
-            <span class="member-email">${memberEmail}</span>
-            <span class="member-phone">${memberPhone}</span>
-        </div>
-        <button class="btn-remove-member"><i class="fas fa-times"></i></button>
-    `;
+    const originalMonths = loanTerm * 12;
+    const monthsSaved = originalMonths - months;
+    const interestSaved = (emi * originalMonths - loanAmount) - totalInterest;
     
-    document.querySelector('.trip-members-list').appendChild(memberItem);
-    
-    // Add event listener to the new remove button
-    memberItem.querySelector('.btn-remove-member').addEventListener('click', function() {
-        this.closest('.member-item').remove();
-    });
-    
-    // Clear the input fields
-    document.getElementById('memberName').value = '';
-    document.getElementById('memberEmail').value = '';
-    document.getElementById('memberPhone').value = '';
+    // Update the results
+    const resultsElement = document.querySelector('.extra-payment-results p');
+    resultsElement.textContent = `Paying an extra $${extraPayment.toFixed(2)}/month would save you $${interestSaved.toFixed(2)} in interest and pay off your loan ${Math.floor(monthsSaved/12)} years and ${monthsSaved%12} months earlier.`;
 }
 
-// Initialize theme toggle
-const themeToggle = document.querySelector('.theme-toggle');
-if (themeToggle) {
-    themeToggle.addEventListener('click', function() {
-        document.body.classList.toggle('light-theme');
-        
-        if (document.body.classList.contains('light-theme')) {
-            this.innerHTML = '<i class="fas fa-moon"></i><span>Dark Theme</span>';
-            // Update CSS variables for light theme
-            document.documentElement.style.setProperty('--primary-bg', '#f5f5f5');
-            document.documentElement.style.setProperty('--secondary-bg', '#ffffff');
-            document.documentElement.style.setProperty('--card-bg', '#ffffff');
-            document.documentElement.style.setProperty('--text-primary', '#333333');
-            document.documentElement.style.setProperty('--text-secondary', '#666666');
-            document.documentElement.style.setProperty('--border-color', '#e0e0e0');
-            document.documentElement.style.setProperty('--highlight', 'rgba(0, 200, 150, 0.1)');
-            document.documentElement.style.setProperty('--shadow', '0 4px 20px rgba(0, 0, 0, 0.1)');
-        } else {
-            this.innerHTML = '<i class="fas fa-sun"></i><span>Light Theme</span>';
-            // Reset to dark theme variables
-            document.documentElement.style.setProperty('--primary-bg', '#121212');
-            document.documentElement.style.setProperty('--secondary-bg', '#1e1e1e');
-            document.documentElement.style.setProperty('--card-bg', '#252525');
-            document.documentElement.style.setProperty('--text-primary', '#ffffff');
-            document.documentElement.style.setProperty('--text-secondary', '#b3b3b3');
-            document.documentElement.style.setProperty('--border-color', '#333333');
-            document.documentElement.style.setProperty('--highlight', 'rgba(0, 255, 170, 0.1)');
-            document.documentElement.style.setProperty('--shadow', '0 4px 20px rgba(0, 0, 0, 0.3)');
+function updateEMIBreakdownChart(principal, interest) {
+    const emiBreakdownCtx = document.getElementById('emiBreakdownChart').getContext('2d');
+    
+    // Destroy the old chart if it exists
+    if (window.emiBreakdownChart) {
+        window.emiBreakdownChart.destroy();
+    }
+    
+    // Create new chart
+    window.emiBreakdownChart = new Chart(emiBreakdownCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Principal', 'Interest'],
+            datasets: [{
+                data: [principal, interest],
+                backgroundColor: [
+                    'rgba(0, 255, 170, 0.7)',
+                    'rgba(255, 0, 170, 0.7)'
+                ],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
         }
     });
 }
 
-// Initialize logout button
-const logoutBtn = document.querySelector('.logout-btn');
-if (logoutBtn) {
-    logoutBtn.addEventListener('click', function() {
-        // In a real app, this would log the user out
-        alert('You have been logged out');
-        window.location.href = 'login.html'; // Redirect to login page
+function createTrip() {
+    const tripName = document.getElementById('tripName').value;
+    const startDate = document.getElementById('tripStartDate').value;
+    const endDate = document.getElementById('tripEndDate').value;
+    const budget = parseFloat(document.getElementById('tripBudget').value) || 0;
+    
+    // Validate inputs
+    if (!tripName || !startDate || !endDate || budget <= 0) {
+        alert('Please fill in all trip details and provide a valid budget.');
+        return;
+    }
+    
+    // Format dates
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+    const dateFormatOptions = { month: 'short', day: 'numeric', year: 'numeric' };
+    const formattedStartDate = startDateObj.toLocaleDateString('en-US', dateFormatOptions);
+    const formattedEndDate = endDateObj.toLocaleDateString('en-US', dateFormatOptions);
+    
+    // Calculate trip duration
+    const durationMs = endDateObj - startDateObj;
+    const durationDays = Math.ceil(durationMs / (1000 * 60 * 60 * 24));
+    
+    // Create trip card
+    const tripItem = document.createElement('div');
+    tripItem.className = 'trip-item';
+    tripItem.innerHTML = `
+        <div class="trip-header">
+            <h4>${tripName}</h4>
+            <div class="trip-dates">${formattedStartDate} - ${formattedEndDate}</div>
+        </div>
+        <div class="trip-progress">
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="progress-labels">
+                <span>$0 spent</span>
+                <span>$${budget.toLocaleString('en-US', {maximumFractionDigits: 2})} budget</span>
+            </div>
+        </div>
+        <div class="trip-members">
+            <div class="members-count">
+                <i class="fas fa-users"></i> ${document.querySelectorAll('.member-item').length} members
+            </div>
+            <div class="members-avatars">
+                ${Array.from(document.querySelectorAll('.member-item')).map((item, index) => 
+                    `<div class="member-avatar">${item.querySelector('.member-name').textContent.split(' ').map(n => n[0]).join('')}</div>`
+                ).join('')}
+            </div>
+        </div>
+    `;
+    
+    // Add to active trips
+    document.querySelector('.trip-active-card .card-body').insertBefore(tripItem, document.querySelector('.trip-active-card .card-body').firstChild);
+    
+    // Reset form
+    document.getElementById('tripForm').reset();
+    document.querySelector('.trip-members-list').innerHTML = '';
+    
+    // Show success message
+    alert(`Trip "${tripName}" created successfully for ${durationDays} days with a budget of $${budget.toLocaleString('en-US', {maximumFractionDigits: 2})}!`);
+}
+
+function addTripMember() {
+    const name = document.getElementById('memberName').value;
+    const email = document.getElementById('memberEmail').value;
+    const phone = document.getElementById('memberPhone').value;
+    
+    // Validate inputs
+    if (!name || !email || !phone) {
+        alert('Please fill in all member details.');
+        return;
+    }
+    
+    // Create member item
+    const memberItem = document.createElement('div');
+    memberItem.className = 'member-item';
+    memberItem.innerHTML = `
+        <div class="member-info">
+            <span class="member-name">${name}</span>
+            <span class="member-email">${email}</span>
+            <span class="member-phone">${phone}</span>
+        </div>
+        <button class="btn-remove-member"><i class="fas fa-times"></i></button>
+    `;
+    
+    // Add to members list
+    document.querySelector('.trip-members-list').appendChild(memberItem);
+    
+    // Reset inputs
+    document.getElementById('memberName').value = '';
+    document.getElementById('memberEmail').value = '';
+    document.getElementById('memberPhone').value = '';
+    
+    // Add event listener to remove button
+    memberItem.querySelector('.btn-remove-member').addEventListener('click', function() {
+        this.closest('.member-item').remove();
     });
 }
+
+// Initialize calculations on page load
+window.addEventListener('load', function() {
+    calculateTaxes();
+    calculateBudget();
+    calculateEMI();
+});
