@@ -81,7 +81,6 @@ body {
     background-clip: text;
     color: transparent;
     letter-spacing: 1px;
-    animation: rgbFlow 8s infinite linear;
 }
 
 .logo-pilot {
@@ -94,12 +93,6 @@ body {
     letter-spacing: 1px;
     margin-top: -3px;
     margin-left: 2px;
-}
-
-@keyframes rgbFlow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
 }
 
 /* User Profile */
@@ -1816,28 +1809,3 @@ body {
     animation: float 6s ease-in-out infinite;
 }
 
-/* RGB Border Animation */
-.rgb-border {
-    position: relative;
-}
-
-.rgb-border::before {
-    content: '';
-    position: absolute;
-    top: -2px;
-    left: -2px;
-    right: -2px;
-    bottom: -2px;
-    z-index: -1;
-    background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
-    background-size: 400%;
-    border-radius: 12px;
-    opacity: 0.8;
-    animation: rgbBorder 20s linear infinite;
-}
-
-@keyframes rgbBorder {
-    0% { background-position: 0 0; }
-    50% { background-position: 400% 0; }
-    100% { background-position: 0 0; }
-}
