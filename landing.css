@@ -1,0 +1,236 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+body {
+    background-color: #000;
+    color: #fff;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+}
+
+.graph-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    opacity: 1;
+}
+
+.graph-container.faded {
+    opacity: 0.1;
+    transition: opacity 1.5s ease-out 0.5s;
+}
+
+.logo {
+    position: absolute;
+    z-index: 10;
+    font-size: 26px;
+    font-weight: bold;
+    background: linear-gradient(90deg, #00ff9d, #00b8ff, #ff00aa);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    opacity: 0;
+    left: 50%;
+    top: 42%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    text-shadow: 0 0 15px rgba(0, 255, 157, 0.5);
+    transition: all 0.5s ease;
+}
+
+.logo.final-position {
+    left: 30px;
+    top:38px; /* Changed from 30px to 35px (5px down) */
+    transform: none;
+    font-size: 28px;
+    opacity: 1;
+}
+
+
+.features-container {
+    position: relative;
+    z-index: 5;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 90px 30px 30px;
+    opacity: 0;
+    width: 100%;
+    max-width: 1000px;
+    margin: 0 auto;
+    transition: opacity 0.5s ease;
+}
+
+.features-container.visible {
+    opacity: 1;
+}
+
+.feature-box {
+    background-color: rgba(0, 20, 10, 0.8);
+    border-radius: 10px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    transform: translateY(20px);
+    opacity: 0;
+    border: 1px solid #00ff9d;
+    box-shadow: 0 0 15px rgba(0, 255, 157, 0.3);
+}
+
+.feature-box.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.feature-box:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 0 25px rgba(0, 255, 157, 0.5);
+}
+
+.feature-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+    color: #00ff9d;
+}
+
+.feature-box h3 {
+    color: #00ff9d;
+    margin-bottom: 12px;
+    font-size: 18px;
+}
+
+.feature-box ul {
+    list-style-type: none;
+}
+
+.feature-box li {
+    color: #ccc;
+    font-size: 15px;
+    margin-bottom: 8px;
+    line-height: 1.4;
+    position: relative;
+    padding-left: 18px;
+}
+
+.feature-box li::before {
+    content: '•';
+    position: absolute;
+    left: 0;
+    color: #00b8ff;
+}
+
+.cta-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    padding: 12px 25px 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 50px;
+    background: linear-gradient(90deg, #00ff9d, #00b8ff);
+    color: #000;
+    cursor: pointer;
+    z-index: 10;
+    opacity: 0;
+    transition: all 0.3s ease;
+    box-shadow: 0 0 15px rgba(0, 255, 157, 0.5);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cta-button .arrow {
+    font-size: 20px;
+    transition: transform 0.3s ease;
+}
+
+.cta-button:hover .arrow {
+    transform: translateX(3px);
+}
+
+.cta-button.visible {
+    opacity: 1;
+}
+
+.cta-button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 25px rgba(0, 255, 157, 0.8);
+    background: linear-gradient(90deg, #00b8ff, #00ff9d);
+}
+
+.custom-cursor {
+    position: fixed;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: conic-gradient(#00ff9d, #00b8ff, #ff00aa, #00ff9d);
+    pointer-events: none;
+    z-index: 100;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+    filter: brightness(1.2);
+    opacity: 1;
+}
+
+.custom-cursor.faded {
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+/* Keep all your existing styles, but update these specific classes: */
+.trail-dot {
+    position: fixed;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #00ff9d; /* Neon green */
+    pointer-events: none;
+    z-index: 99;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    box-shadow: 0 0 8px #00ff9d;
+    transition: opacity 0.3s ease;
+    will-change: transform, opacity;
+}
+
+.custom-cursor {
+    position: fixed;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #00ff9d; /* Neon green */
+    pointer-events: none;
+    z-index: 100;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 15px #00ff9d;
+    opacity: 1;
+    transition: opacity 1s ease-out;
+    filter: brightness(1.2);
+}
+
+/* Content styling remains same as before */
+
+/* Content layering */
+.logo {
+    z-index: 110;
+}
+.features-container {
+    z-index: 105;
+}
+.cta-button {
+    z-index: 120;
+}
+
+.graph-container {
+    z-index: 1;
+    opacity: 1;
+    transition: opacity 2s ease-out;
+}
